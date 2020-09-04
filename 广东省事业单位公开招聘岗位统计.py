@@ -12,14 +12,14 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
+from config.settings import user, passwd
+
 base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config')
 cookie_path = os.path.join(base_dir, 'cookie.json')
 
 URL = 'https://ggfw.gdhrss.gov.cn/sydwbk/exam/details/spQuery.do'
+INDEX_URL = 'https://ggfw.gdhrss.gov.cn/sydwbk/center.do'
 
-PIC_URL = 'https://ggfw.gdhrss.gov.cn/ssologin/CaptchaImg'
-
-pwd = '8b058c0718701adbb5690c82d79b8421efdd0b0647d6175a84c2f3c32445fe07f9cf0d37bd67318a532832235471177685927b80cce8ff8b97b23f60416b3c7f060098dd7513fb7f402514b561501494737c7e500a3974ad9a80bde6e2bc3120686bb71cea9822beb72497c8228c2235350e4d79747e25503c3769e91971d4e4'
 citys = {
   "广州": "01",
   "深圳": "02",
@@ -59,7 +59,7 @@ def takeSecond(elem):
 
 class ChromeWebkitManager(object):
     def __init__(self):
-        self.chromepath = '/Users/liaoshufeng/workspace/project/grpc/examples/python/rpc_sample/chromedriver'
+        self.chromepath = os.path.join(base_dir, 'chromedriver')
         self.driver = self.create_driver()
 
     def create_driver(self):
@@ -128,41 +128,13 @@ def run_with_driver():
     # plt.close('all')
     vcode_text = input('please input png text')
     os.remove('pic.png')
-    user = manager.driver.find_element(By.ID, 'username_personal').send_keys('****')
-    passwd = manager.driver.find_element(By.ID, 'password_personal').send_keys('****')
-    vcode = manager.driver.find_element(By.ID, 'vcode_personal').send_keys(vcode_text)
+    manager.driver.find_element(By.ID, 'username_personal').send_keys(user)
+    manager.driver.find_element(By.ID, 'password_personal').send_keys(passwd)
+    manager.driver.find_element(By.ID, 'vcode_personal').send_keys(vcode_text)
     manager.driver.find_element(By.ID, 'doPersonLogin').click()
-    manager.driver.get('https://ggfw.gdhrss.gov.cn/sydwbk/center.do')
+    manager.driver.get(INDEX_URL)
     cookies = manager.driver.get_cookies()
     save_cookie(cookies)
-
-
-
-def send_request(driver, url, params, method='POST'):
-    if method == 'GET':
-        parm_str = ''
-        for key, value in params.items():
-            parm_str = parm_str + key + '=' + str(value) + '&'
-        if parm_str.endswith('&'):
-            parm_str = '?' + parm_str[:-1]
-        driver.get(url + parm_str)
-    else:
-        jquery = open(os.path.join(base_dir, 'jquery.min.js') + "/js/jquery.min.js", "r").read()
-        driver.execute_script(jquery)
-        ajax_query = '''
-                        $.ajax('%s', {
-                        type: '%s',
-                        data: %s, 
-                        crossDomain: true,
-                        xhrFields: {
-                         withCredentials: true
-                        },
-                        success: function(){}
-                        });
-                        ''' % (url, method, params)
-
-        ajax_query = ajax_query.replace(" ", "").replace("\n", "")
-        resp = driver.execute_script("return " + ajax_query)
 
 
 def fetch_job():
