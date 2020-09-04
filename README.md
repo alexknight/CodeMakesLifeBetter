@@ -1,2 +1,0 @@
-# CodeMakesLifeBetter
-代码让生活更美好，这个代码仓库用于解决生活中的一些麻烦事
